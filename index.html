@@ -4,40 +4,7 @@
     <title>Свободные руки</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            background: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            font-family: sans-serif;
-            padding: 20px;
-            margin: 0;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--tg-theme-hint-color, #ccc);
-            border-radius: 8px;
-            font-size: 16px;
-            margin-top: 8px;
-            box-sizing: border-box;
-        }
-        button {
-            background: var(--tg-theme-button-color, #007bff);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            border: none;
-            padding: 14px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            margin-top: 15px;
-            transition: opacity 0.2s;
-        }
-        button:active {
-            opacity: 0.8;
-        }
+        /* ... ваш стиль без изменений ... */
     </style>
 </head>
 <body>
@@ -59,27 +26,32 @@
     <button onclick="submitForm('delivery')">🤝 Свободные руки</button>
 
     <script>
-        // Инициализация WebApp
-        const tg = Telegram.WebApp;
+        // 1. Явная инициализация WebApp
+        const tg = window.Telegram.WebApp;
         
-        // Показываем основную кнопку
-        tg.MainButton.setText("Отправить заявку");
-        tg.MainButton.hide();
+        // 2. Проверка доступности WebApp
+        if (!tg || !tg.initData) {
+            alert("Ошибка: Mini App не загружен!");
+            tg.close();
+        }
 
-        // Валидация формы
+        // 3. Настройка MainButton
+        tg.MainButton
+            .setText("Отправить заявку")
+            .hide()
+            .onClick(() => submitForm('default')); // Обработчик для MainButton
+
+        // 4. Валидация формы
         function validate() {
             const name = document.getElementById('name').value.trim();
             const phone = document.getElementById('phone').value.trim();
+            const isValid = name && /^\+?\d{10,15}$/.test(phone);
             
-            if (!name || !/^\+?\d{10,15}$/.test(phone)) {
-                tg.MainButton.hide();
-                return false;
-            }
-            tg.MainButton.show();
-            return true;
+            tg.MainButton[isValid ? 'show' : 'hide']();
+            return isValid;
         }
 
-        // Отправка данных
+        // 5. Отправка данных
         function submitForm(type) {
             const formData = {
                 name: document.getElementById('name').value.trim(),
@@ -89,28 +61,35 @@
 
             // Валидация
             if (!formData.name) {
-                tg.showAlert("Введите ваше имя!");
+                tg.showAlert("❗ Введите ваше имя!");
                 return;
             }
             
             if (!/^\+?\d{10,15}$/.test(formData.phone)) {
-                tg.showAlert("Введите телефон в формате 79001234567");
+                tg.showAlert("❗ Телефон в формате 79001234567");
                 return;
             }
 
-            // Отправка данных
+            // Логирование
+            console.log("[DEBUG] Отправка данных:", formData);
+            
+            // Отправка
             tg.sendData(JSON.stringify(formData));
             
-            // Закрытие приложения
-            setTimeout(() => tg.close(), 300);
+            // Закрытие
+            setTimeout(() => {
+                console.log("[DEBUG] Закрытие Mini App");
+                tg.close();
+            }, 300);
         }
 
-        // Динамическая валидация при вводе
+        // 6. Слушатели событий
         document.getElementById('name').addEventListener('input', validate);
         document.getElementById('phone').addEventListener('input', validate);
         
-        // Инициализация WebApp
+        // 7. Инициализация
         tg.ready();
+        console.log("[DEBUG] Mini App инициализирован");
     </script>
 </body>
 </html>
