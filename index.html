@@ -1,103 +1,34 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Свободные руки</title>
-    <!-- Подключаем библиотеку Telegram WebApp -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        /* Стили под дизайн Telegram */
-        body {
-            background: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            font-family: sans-serif;
-            padding: 20px;
-            margin: 0;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            margin-top: 5px;
-        }
-        button {
-            background: var(--tg-theme-button-color, #007bff);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="form-group">
-        <input type="text" id="name" placeholder="Ваше имя">
-    </div>
-    <div class="form-group">
-        <input type="tel" id="phone" placeholder="Телефон (например, 79001234567)">
-    </div>
-        <button onclick="submitForm('callback')">Заказать звонок</button>
-<button onclick="submitForm('delivery')">Свободные руки</button>
+<script>
+    const app = Telegram.WebApp;
 
-    <script>
-        const app = Telegram.WebApp;
-
-                // Проверка данных перед отправкой
-        function validateForm(data) {
-            if (!data.name || data.name.trim() === '') {
-                alert('Введите имя!');
-                return false;
-            }
-            if (!data.phone || !/^\+?\d{10,15}$/.test(data.phone)) {
-                alert('Введите корректный телефон!');
-                return false;
-            }
-            
-            return true;
+    function validateForm(data) {
+        if (!data.name || data.name.trim() === '') {
+            alert('Введите имя!');
+            return false;
         }
-
-        // Отправка данных
-        function submitForm(type) {
-            const data = {
-                name: document.getElementById('name').value,
-                phone: document.getElementById('phone').value,
-                type: type,
-                
-            };
-
-            if (!validateForm(data)) return;
-
-            // Отправляем данные в бота
-            app.sendData(JSON.stringify(data));
-            app.close(); // Закрываем мини-приложение
+        if (!data.phone || !/^\+?\d{10,15}$/.test(data.phone)) {
+            alert('Введите корректный телефон!');
+            return false;
         }
-    </script>
-</body>
-</html>
-function submitForm(type) {
-    // Проверяем, что WebApp инициализирован
-    if (!Telegram.WebApp) {
-        alert("Ошибка: Mini App не загрузился!");
-        return;
+        return true;
     }
 
-    const data = {
-        name: document.getElementById('name').value,
-        phone: document.getElementById('phone').value,
-        type: type
-    };
+    function submitForm(type) {
+        console.log("[DEBUG] Отправка данных...");
 
-    if (!validateForm(data)) return;
+        const data = {
+            name: document.getElementById('name').value,
+            phone: document.getElementById('phone').value,
+            type: type
+        };
 
-    // Отправляем данные
-    Telegram.WebApp.sendData(JSON.stringify(data));
-    Telegram.WebApp.close();
-}
+        if (!validateForm(data)) {
+            console.log("[DEBUG] Валидация не пройдена");
+            return;
+        }
+
+        console.log("[DEBUG] Данные для отправки:", data);
+        app.sendData(JSON.stringify(data));
+        app.close();
+    }
+</script>
