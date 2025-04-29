@@ -1,34 +1,84 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Оформление заявки</title>
-  <script>
-    function sendData(serviceType) {
-      const phone = document.getElementById('phone').value.trim();
-      if (!phone) {
-        alert('Пожалуйста, введите номер телефона');
-        return;
-      }
-      const data = {
-        service: serviceType,
-        phone: phone
-      };
-      Telegram.WebApp.sendData(JSON.stringify(data));
-      // После отправки меняем страницу на сообщение "Спасибо"
-      document.body.innerHTML = `
-        <div style="font-family: Arial, sans-serif; padding: 20px; text-align: center;">
-          <h2>Спасибо, что выбрали Drinx!</h2>
-          <p>Мы свяжемся с вами в ближайшее время.</p>
-        </div>
-      `;
-    }
-  </script>
+    <title>Свободные руки</title>
+    <!-- Подключаем библиотеку Telegram WebApp -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* Стили под дизайн Telegram */
+        body {
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            font-family: sans-serif;
+            padding: 20px;
+            margin: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+        button {
+            background: var(--tg-theme-button-color, #007bff);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; padding: 20px;">
-  <h2>Выберите услугу</h2>
-  <input type="text" id="phone" placeholder="Ваш номер телефона" style="width: 100%; padding: 10px; margin-bottom: 20px;"><br>
-  <button onclick="sendData('Свободные руки')" style="width: 100%; padding: 15px; background-color: #4CAF50; color: white; border: none; margin-bottom: 10px;">Заказать доставку</button><br>
-  <button onclick="sendData('Персональная консультация')" style="width: 100%; padding: 15px; background-color: #2196F3; color: white; border: none;">Связаться с менеджером</button>
+<body>
+    <div class="form-group">
+        <input type="text" id="name" placeholder="Ваше имя">
+    </div>
+    <div class="form-group">
+        <input type="tel" id="phone" placeholder="Телефон (например, +79001234567)">
+    </div>
+        <button onclick="handleOrder('callback')">Заказать звонок</button>
+    <button onclick="handleOrder('delivery')">Свободные руки</button>
+
+    <script>
+        const app = Telegram.WebApp;
+
+                // Проверка данных перед отправкой
+        function validateForm(data) {
+            if (!data.name || data.name.trim() === '') {
+                alert('Введите имя!');
+                return false;
+            }
+            if (!data.phone || !/^\+?\d{10,15}$/.test(data.phone)) {
+                alert('Введите корректный телефон!');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Отправка данных
+        function submitForm(type) {
+            const data = {
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                type: type,
+                
+            };
+
+            if (!validateForm(data)) return;
+
+            // Отправляем данные в бота
+            app.sendData(JSON.stringify(data));
+            app.close(); // Закрываем мини-приложение
+        }
+    </script>
 </body>
 </html>
