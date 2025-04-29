@@ -42,10 +42,10 @@
         <input type="text" id="name" placeholder="Ваше имя">
     </div>
     <div class="form-group">
-        <input type="tel" id="phone" placeholder="Телефон (например, +79001234567)">
+        <input type="tel" id="phone" placeholder="Телефон (например, 79001234567)">
     </div>
-        <button onclick="handleOrder('callback')">Заказать звонок</button>
-    <button onclick="handleOrder('delivery')">Свободные руки</button>
+        <button onclick="submitForm('callback')">Заказать звонок</button>
+<button onclick="submitForm('delivery')">Свободные руки</button>
 
     <script>
         const app = Telegram.WebApp;
@@ -82,3 +82,22 @@
     </script>
 </body>
 </html>
+function submitForm(type) {
+    // Проверяем, что WebApp инициализирован
+    if (!Telegram.WebApp) {
+        alert("Ошибка: Mini App не загрузился!");
+        return;
+    }
+
+    const data = {
+        name: document.getElementById('name').value,
+        phone: document.getElementById('phone').value,
+        type: type
+    };
+
+    if (!validateForm(data)) return;
+
+    // Отправляем данные
+    Telegram.WebApp.sendData(JSON.stringify(data));
+    Telegram.WebApp.close();
+}
